@@ -33,8 +33,6 @@
 
             Get["/proxy", true] = async (parameters, ctx) =>
             {
-                var requestUrl = Request.Query;
-
                 var parsedUrl = ParseQueryString(Request.Query);
                 var requestForType = parsedUrl.Item1;
                 var url = parsedUrl.Item2;
@@ -53,13 +51,11 @@
 
             Post["/proxy", true] = async (parameters, ctx) =>
             {
-                var requestUrl = Request.Query;
-
                 var parsedUrl = ParseQueryString(Request.Query);
                 var requestForType = parsedUrl.Item1;
                 var url = parsedUrl.Item2.Split('?').FirstOrDefault();
 
-                var parametersToSend = AsDictionary(parsedUrl.Item2);
+                var parametersToSend = parsedUrl.Item3;
                 HttpContent content = null;
                 try
                 {
@@ -74,7 +70,7 @@
                     }
                     content = tempContent;
                 }
-                
+
                 var response = await httpClient.PostAsync(url, content);
                 response.EnsureSuccessStatusCode();
 
@@ -88,16 +84,18 @@
             };
         }
 
-        Tuple<string, string> ParseQueryString(DynamicDictionary requestUrl)
+        Tuple<string, string, Dictionary<string, string>> ParseQueryString(DynamicDictionary requestUrl)
         {
             var url = new StringBuilder();
             string requestForType = "";
             int skip = 0;
 
-            foreach (var part in requestUrl)
+            var parts = AsDictionary(requestUrl);
+
+            foreach (var part in parts)
             {
-                var key = requestUrl.Keys.Skip(skip).Take(1).SingleOrDefault();
-                var value = requestUrl.Values.Skip(skip).Take(1).SingleOrDefault().Value;
+                var key = part.Key;
+                var value = part.Value;
 
                 if (skip > 0)
                 {
@@ -121,21 +119,14 @@
                 skip++;
             }
 
-            return Tuple.Create(requestForType, url.ToString());
+            return Tuple.Create(requestForType, url.ToString(), parts);
         }
 
-        public Dictionary<string, string> AsDictionary(object objectToConvert)
+        static Dictionary<string, string> AsDictionary(DynamicDictionary dictionary)
         {
-            var stringValue = Newtonsoft.Json.JsonConvert.SerializeObject(objectToConvert);
-
-            var jobject = Newtonsoft.Json.Linq.JObject.Parse(stringValue);
-            var dict = new Dictionary<string, string>();
-            foreach (var item in jobject)
-            {
-                dict.Add(item.Key, item.Value.ToString());
-            }
-            return dict;
-        }
-
+            return dictionary.GetDynamicMemberNames().ToDictionary(
+                    memberName => memberName,
+                    memberName => (string)dictionary[memberName]);
+        }       
     }
 }
