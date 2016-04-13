@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title></title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.16/esri/css/esri.css">
+    <style>
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://js.arcgis.com/3.16/"></script>
+    <script>
+        require(["esri/map", 
+            "esri/layers/ArcGISTiledMapServiceLayer", "esri/layers/ArcGISDynamicMapServiceLayer",
+            "esri/urlUtils",
+            "dojo/domReady!"],
+          function (Map, Tiled, Dynamic, urlUtils) {
+
+              urlUtils.addProxyRule({ proxyUrl: '/proxy/', urlPrefix: "http://services.arcgisonline.com" });
+              urlUtils.addProxyRule({ proxyUrl: '/proxy/', urlPrefix: "http://sampleserver1.arcgisonline.com" });
+
+              var tiled = new Tiled("http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer");
+              var dynamic = new Dynamic("http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Population_World/MapServer", { opacity: 0.4 });
+              
+              var map = new Map('map');
+
+              map.addLayer(tiled);
+              map.addLayer(dynamic);
+          }
+        );
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>

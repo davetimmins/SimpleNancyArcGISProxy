@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title></title>
+    <link rel="stylesheet" href="https://jsqa.arcgis.com/4.0/esri/css/main.css">
+    <style>
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://jsqa.arcgis.com/4.0/"></script>
+    <script>
+        require(["esri/Map", "esri/views/MapView",
+            "esri/layers/ArcGISTiledLayer", "esri/layers/ArcGISDynamicLayer",
+            "esri/core/urlUtils",
+            "dojo/domReady!"],
+          function (Map, MapView, Tiled, Dynamic, urlUtils) {
+
+              urlUtils.addProxyRule({ proxyUrl: '/proxy/', urlPrefix: "http://services.arcgisonline.com" });
+              urlUtils.addProxyRule({ proxyUrl: '/proxy/', urlPrefix: "http://sampleserver1.arcgisonline.com" });
+
+              var tiled = new Tiled("http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer");
+              var dynamic = new Dynamic("http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Population_World/MapServer", { opacity: 0.4 });
+              
+              var map = new Map({ layers: [tiled, dynamic] });
+
+              var view = new MapView({
+                  container: "map",
+                  map: map,
+                  zoom: 4,
+                  center: [15, 65]
+              });
+          }
+        );
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
